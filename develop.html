@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>WebSocket Server</title>
+</head>
+<body>
+    <div style="display: table; table-layout: fixed; width: 100%">
+        <div id="message_sender" style="display: table-cell; border:1px solid black; width: 32em">
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Login</h3>
+                <input id="user_name" type="text" placeholder="user_name" />
+                <input id="password" type="text" placeholder="password" />
+                <button>Send</button>
+                <button>Reset</button>
+                <button>Logout</button>
+            </div>
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Create Room</h3>
+                <input id="room_name" type="text" placeholder="room_name" />
+                <input id="room_password" type="text" placeholder="room_password" />
+                <button onclick="send_create_room()">Send</button>
+                <button onclick="reset_create_room()">Reset</button>
+                <script>
+                    var room_name = document.getElementById('room_name');
+                    var room_password = document.getElementById('room_password');
+
+                    function reset_create_room() {
+                        user_name.value = "";
+                        room_name.value = "";
+                        room_password.value = "";
+                    }
+
+                    function send_create_room() {
+                        let sent_message_status = document.getElementById('sent_message_status');
+                        let msg = JSON.stringify({
+                                message: "create_room",
+                                user_name: user_name.value,
+                                room_name: room_name.value,
+                                room_password: password.value,
+                        });
+
+                        console.log(msg);
+                        socket.send(msg);
+                        sent_message_status.innerHTML = msg;
+
+                        reset_create_room();
+                    }
+                </script>
+            </div>
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Enter Room</h3>
+                <input id="room_name_enter" type="text" placeholder="room_name" />
+                <input id="room_password_enter" type="text" placeholder="room_password" />
+                <button>Send</button>
+                <button>Reset</button>
+            </div>
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Room Control</h3>
+                <button>Exit Room</button>
+            </div>
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Game Control</h3>
+                <button>Join the Game</button>
+                <button>Leave from the Game</button>
+                <button>Extend Time Limit</button>
+                <button>Start Vote</button>
+            </div>
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Vote</h3>
+                <input id="vote_user_name" type="text" placeholder="user_name" />
+                <button>Send</button>
+                <button>Reset</button>
+            </div>
+        </div>
+        <div id="message_sender" style="display: table-cell; border:1px solid black ">
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Sent Message</h3>
+                <p id="sent_message_status" style="word-wrap: break-word">None</p>
+            </div>
+        </div>
+        <div id="message_receiver" style="display: table-cell; border:1px solid black ">
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Received Message</h3>
+                <p id="received_message_status" style="word-wrap: break-word">None</p>
+            </div>
+        </div>
+        <div id="status_viewer" style="display: table-cell; border:1px solid black ">
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Client Status</h3>
+                <p>username</p>
+            </div>
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Server Status</h3>
+                <p id="connection_status">Connection: None</p>
+            </div>
+            <div style="border:1px solid black; margin:3px; padding:15px">
+                <h3>Cookie</h3>
+                <p id="connection_status">Connection: None</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        var connection_status = document.getElementById('connection_status');
+        var sent_message_status = document.getElementById('sent_message_status');
+        var received_message_status = document.getElementById('received_message_status');
+
+        var socket = new WebSocket("ws://" + window.location.host + "/api");
+
+        socket.onopen = function() {
+           connection_status.innerHTML = "Connection OK\n";
+        };
+
+        socket.onmessage = function( event ) {
+            received_message_status.innerHTML = "Message from server: " + event.data + "\n";
+        };
+
+/*
+        function send() {
+            socket.send(JSON.stringify(
+                {
+                    message: input.value,
+                    detail: detail.value,
+                    meta: meta.value,
+                }
+            ));
+            input.value = "";
+            detail.value = "";
+            meta.value = "";
+        };
+*/
+    </script>
+</body>
+</html>
