@@ -1,5 +1,5 @@
 debug:
-	echo "DEBUG MODE"
+	cd client && make build
 
 release:
 	echo "RELEASE MODE"
