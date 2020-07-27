@@ -13,22 +13,55 @@
                 <h3>Login</h3>
                 <input id="user_name" type="text" placeholder="user_name" />
                 <input id="password" type="text" placeholder="password" />
-                <button>Send</button>
-                <button>Reset</button>
-                <button>Logout</button>
+                <button onclick="send_user_login()">Send</button>
+                <button onclick="reset_user_login()">Reset</button>
+                <button onclick="send_user_logout()">Logout</button>
+                <script>
+                    var user_name = document.getElementById('user_name')
+                    var password = document.getElementById('password')
+
+                    function reset_user_login() {
+                        user_name.value = "";
+                        password.value = "";
+                    }
+
+                    function send_user_login() {
+                        let sent_message_status = document.getElementById('sent_message_status');
+                        let msg = JSON.stringify({
+                            message: "login",
+                            user_name: user_name.value,
+                            password: password.value,
+                        })
+
+                        socket.send(msg);
+                        sent_message_status.innerHTML = msg;
+
+                        reset_user_login();
+                    }
+
+                    function send_user_logout() {
+                        let sent_message_status = document.getElementById('sent_message_status');
+                        let msg = JSON.stringify({
+                            message: "logout",
+                        })
+
+                        socket.send(msg);
+                        sent_message_status.innerHTML = msg;
+                    }
+                </script>
             </div>
             <div style="border:1px solid black; margin:3px; padding:15px">
-                <h3>Create Room</h3>
+                <h3>Room Control</h3>
                 <input id="room_name" type="text" placeholder="room_name" />
                 <input id="room_password" type="text" placeholder="room_password" />
-                <button onclick="send_create_room()">Send</button>
+                <button onclick="send_create_room()">Create Room</button>
+                <button onclick="send_enter_room()">Enter Room</button>
                 <button onclick="reset_create_room()">Reset</button>
                 <script>
                     var room_name = document.getElementById('room_name');
                     var room_password = document.getElementById('room_password');
 
                     function reset_create_room() {
-                        user_name.value = "";
                         room_name.value = "";
                         room_password.value = "";
                     }
@@ -37,7 +70,21 @@
                         let sent_message_status = document.getElementById('sent_message_status');
                         let msg = JSON.stringify({
                                 message: "create_room",
-                                user_name: user_name.value,
+                                room_name: room_name.value,
+                                room_password: password.value,
+                        });
+
+                        console.log(msg);
+                        socket.send(msg);
+                        sent_message_status.innerHTML = msg;
+
+                        reset_create_room();
+                    }
+
+                    function send_enter_room() {
+                        let sent_message_status = document.getElementById('sent_message_status');
+                        let msg = JSON.stringify({
+                                message: "enter_room",
                                 room_name: room_name.value,
                                 room_password: password.value,
                         });
@@ -51,28 +98,61 @@
                 </script>
             </div>
             <div style="border:1px solid black; margin:3px; padding:15px">
-                <h3>Enter Room</h3>
-                <input id="room_name_enter" type="text" placeholder="room_name" />
-                <input id="room_password_enter" type="text" placeholder="room_password" />
-                <button>Send</button>
-                <button>Reset</button>
-            </div>
-            <div style="border:1px solid black; margin:3px; padding:15px">
                 <h3>Room Control</h3>
-                <button>Exit Room</button>
+                <button onclick="send_exit_room()">Exit Room</button>
+                <script>
+                    function send_exit_room() {
+                        let sent_message_status = document.getElementById('sent_message_status');
+                        let msg = JSON.stringify({
+                            message: "exit_room",
+                        })
+
+                        socket.send(msg);
+                        sent_message_status.innerHTML = msg;
+                    }
+                </script>
             </div>
             <div style="border:1px solid black; margin:3px; padding:15px">
                 <h3>Game Control</h3>
-                <button>Join the Game</button>
-                <button>Leave from the Game</button>
-                <button>Extend Time Limit</button>
-                <button>Start Vote</button>
+                <button onclick="send_game_control('join_the_game')">Join the Game</button>
+                <button onclick="send_game_control('leave_from_the_game')">Leave from the Game</button>
+                <button onclick="send_game_control('extend_time_limit')">Extend Time Limit</button>
+                <button onclick="send_game_control('start_vote')">Start Vote</button>
+                <script>
+                    function send_game_control(content) {
+                        let sent_message_status = document.getElementById('sent_message_status');
+                        let msg = JSON.stringify({
+                            message: content,
+                        })
+
+                        socket.send(msg);
+                        sent_message_status.innerHTML = msg;
+                    }
+                </script>
             </div>
             <div style="border:1px solid black; margin:3px; padding:15px">
                 <h3>Vote</h3>
                 <input id="vote_user_name" type="text" placeholder="user_name" />
-                <button>Send</button>
-                <button>Reset</button>
+                <button onclick="send_vote()">Send</button>
+                <button onclick="reset_vote()">Reset</button>
+                <script>
+                    var vote_user_name = document.getElementById('vote_user_name');
+
+                    function reset_vote() {
+                        vote_user_name.value = "";
+                    }
+
+                    function send_vote() {
+                        let sent_message_status = document.getElementById('sent_message_status');
+                        let msg = JSON.stringify({
+                            message: "vote",
+                            user_name: vote_user_name.value,
+                        })
+
+                        socket.send(msg);
+                        sent_message_status.innerHTML = msg;
+                    }
+                </script>
             </div>
         </div>
         <div id="message_sender" style="display: table-cell; border:1px solid black ">
@@ -98,7 +178,7 @@
             </div>
             <div style="border:1px solid black; margin:3px; padding:15px">
                 <h3>Cookie</h3>
-                <p id="connection_status">Connection: None</p>
+                <p id="connection_status">None</p>
             </div>
         </div>
     </div>
