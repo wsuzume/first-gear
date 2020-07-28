@@ -80,8 +80,8 @@ type Route
 parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
-        [ Parser.map IndexRoute (Parser.s "localhost:8080")
-        , Parser.map ExampleRoute (Parser.s "localhost:8080" </> Parser.s "example")
+        [ Parser.map IndexRoute Parser.top
+        , Parser.map ExampleRoute (Parser.s "example")
         ]
 
 fromUrl : Url -> Maybe Route

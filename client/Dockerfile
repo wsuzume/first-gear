@@ -14,8 +14,6 @@ RUN npm install -g parcel-bundler
 # Install elm-live
 RUN npm install -g elm-live
 
-RUN npm install -g http-server
-
 # Install Elm
 # https://github.com/elm/compiler/blob/master/installers/linux/README.md
 WORKDIR /elm
