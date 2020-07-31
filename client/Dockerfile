@@ -28,4 +28,5 @@ RUN rm -r /elm
 WORKDIR /work
 RUN mkdir bin \
     && echo -e "Y\n" | elm init \
-    && echo -e "Y\n" | elm install elm/url
+    && echo -e "Y\n" | elm install elm/url \
+    && echo -e "Y\n" | elm install elm/json

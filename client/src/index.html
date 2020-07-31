@@ -6,6 +6,23 @@
   <script src="main.js"></script>
 </head>
 <body>
-  <script>var app = Elm.Main.init();</script>
+  <script>
+    var app = Elm.Main.init({
+      flags: { tag: "init" }
+    });
+
+    app.ports.elm2js.subscribe(function(data) {
+      console.log('fromElm:', data);
+    });
+
+    function js2elm(data) {
+      app.ports.js2elm.send(data);
+    }
+
+    function echo() {
+      js2elm({tag: "echo", content: "hello"});
+    }
+  </script>
+  <button onclick="echo()">send</button>
 </body>
 </html>
