@@ -1,11 +1,12 @@
-port module Main exposing (Flags, Model(..), Msg(..), changeRouteTo, init, main, subscriptions, toSession, update, updateWith, view, elm2js, js2elm)
+port module Main exposing (main, elm2js, js2elm)
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, button, div, h3, text)
+import Html exposing (Html, text, div, h3, button)
 import Html.Events exposing (onClick)
-import Json.Encode as E
-import Json.Decode exposing (Decoder, field, string, decodeValue)
+import Json.Encode
+import Json.Decode exposing (Decoder)
+import Json.Decode.Pipeline exposing (required)
 import Url exposing (Url)
 import Url.Parser as Parser exposing ((</>), Parser)
 
@@ -21,16 +22,30 @@ main =
         }
 
 -- PORTS
-port elm2js : E.Value -> Cmd msg
+port elm2js : Json.Encode.Value -> Cmd msg
 port js2elm : (Json.Decode.Value -> msg) -> Sub msg
 
-tagDecoder : Decoder String
-tagDecoder =
-    field "tag" string
+type alias PortMsg =
+    { tag : String
+    , content : String
+    }
 
-contentDecoder : Decoder String
-contentDecoder =
-    field "content" string
+encodePortMsg : PortMsg -> Json.Encode.Value
+encodePortMsg msg
+    = Json.Encode.object
+        [ ( "tag", Json.Encode.string msg.tag )
+        , ( "content", Json.Encode.string msg.content )
+        ]
+
+portMsgDecoder : Decoder PortMsg
+portMsgDecoder =
+    Json.Decode.succeed PortMsg
+        |> required "tag" Json.Decode.string
+        |> required "content" Json.Decode.string
+
+decodePortMsg : Json.Decode.Value -> Result Json.Decode.Error PortMsg
+decodePortMsg msg
+    = Json.Decode.decodeValue portMsgDecoder msg
 
 -- MODEL
 
@@ -45,10 +60,9 @@ createSession : Nav.Key -> Session
 createSession key =
     Session (Internals key)
 
-navKey : Session -> Nav.Key
-navKey (Session internals) =
+navKeyOf : Session -> Nav.Key
+navKeyOf (Session internals) =
     internals.key
-
 
 type alias SubModel =
     { session: Session
@@ -56,73 +70,50 @@ type alias SubModel =
 
 type Model
     = NotFound Session
-    | Index Session SubModel
-    | Example Session SubModel
+    | Home Session SubModel
+    | Develop Session SubModel
 
 toSession : Model -> Session
-toSession page =
-    case page of
+toSession model =
+    case model of
         NotFound session ->
             session
-
-        Index session _ ->
+        
+        Home session _ ->
             session
-
-        Example session _ ->
+        
+        Develop session _ ->
             session
-
-
--- elevateWith is more better?
-updateWith : (subModel -> Model) -> (subMsg -> Msg) -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
-updateWith toModel toMsg ( subModel, subCmd ) =
-    let
-        _ = Debug.log "updateWith" 0
-    in
-    ( toModel subModel
-    , Cmd.map toMsg subCmd
-    )
-
-type alias Flags =
-    Json.Decode.Value
 
 -- ROUTE
 
 type Route
-    = IndexRoute
-    | ExampleRoute
+    = HomeRoute
+    | DevelopRoute
 
 
 parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
-        [ Parser.map IndexRoute Parser.top
-        , Parser.map ExampleRoute (Parser.s "example")
+        [ Parser.map HomeRoute Parser.top
+        , Parser.map DevelopRoute (Parser.s "develop")
         ]
 
 fromUrl : Url -> Maybe Route
 fromUrl url =
     Parser.parse parser url
 
--- INIT
-initIndexPage : Session -> ( SubModel, Cmd SubMsg )
-initIndexPage session =
-    let
-        _ = Debug.log "initIndexPage" session
-    in
-    ( SubModel session
-    , Cmd.none
-    )
 
-initExamplePage : Session -> ( SubModel, Cmd SubMsg )
-initExamplePage session =
-    ( SubModel session
-    , Cmd.none
-    )
+-- HELPERS
 
-changeRouteTo : Maybe Route -> Model -> ( Model, Cmd Msg )
-changeRouteTo maybeRoute model =
+wrapWith : (subModel -> Model) -> (subMsg -> Msg) -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
+wrapWith toModel toMsg (subModel, subMsg) =
+    ( toModel subModel, Cmd.map toMsg subMsg )
+
+load : Maybe Route -> Model -> ( Model, Cmd Msg )
+load maybeRoute model =
     let
-        _ = Debug.log "changeRouteTo" maybeRoute
+        _ = Debug.log "load" maybeRoute
         session =
             toSession model
     in
@@ -130,49 +121,41 @@ changeRouteTo maybeRoute model =
         Nothing ->
             ( NotFound session, Cmd.none )
 
-        Just IndexRoute ->
-            initIndexPage session
-                |> updateWith (Index session) GotIndexMsg
+        Just HomeRoute ->
+            initHomePage session
+                |> wrapWith (Home session) GotHomeMsg
 
-        Just ExampleRoute ->
-            initExamplePage session
-                |> updateWith (Example session) GotExampleMsg
+        Just DevelopRoute ->
+            initDevelopPage session
+                |> wrapWith (Develop session) GotDevelopMsg
 
+
+-- INIT
+
+type alias Flags
+    = Json.Encode.Value
 
 init : Flags -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        _ = Debug.log "init" (decodeValue tagDecoder flags)
+        _ = Debug.log "init" (decodePortMsg flags)
     in
-    changeRouteTo (fromUrl url)
-        (NotFound <|
-            createSession key
-        )
+    load (fromUrl url) <|
+        NotFound (createSession key)
 
 -- UPDATE
 
 type SubMsg
     = NoOps
+    | Send
 
 type Msg
     = LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
-    | GotIndexMsg SubMsg
-    | GotExampleMsg SubMsg
-    | Send
+    | GotHomeMsg SubMsg
+    | GotDevelopMsg SubMsg
     | Recv Json.Decode.Value
 
-updateIndexPage : SubMsg -> SubModel -> ( SubModel, Cmd SubMsg )
-updateIndexPage submsg submodel =
-    case submsg of
-        NoOps ->
-            ( submodel, Cmd.none )
-
-updateExamplePage : SubMsg -> SubModel -> ( SubModel, Cmd SubMsg )
-updateExamplePage submsg submodel =
-    case submsg of
-        NoOps ->
-            ( submodel, Cmd.none )
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -187,7 +170,7 @@ update message model =
                 Browser.Internal url ->
                     case fromUrl url of
                         Just _ ->
-                            ( model, Nav.pushUrl (navKey session) (Url.toString url) )
+                            ( model, Nav.pushUrl (navKeyOf session) (Url.toString url) )
 
                         Nothing ->
                             ( model, Nav.load <| Url.toString url )
@@ -200,78 +183,54 @@ update message model =
                         ( model, Nav.load href )
 
         ( UrlChanged url, _ ) ->
-            changeRouteTo (fromUrl url) model
+            load (fromUrl url) model
 
-        ( GotIndexMsg _, _ ) ->
+        ( GotHomeMsg msg, Home _ subModel ) ->
             let
-                _ = Debug.log "GotIndexMsg" 0
+                _ = Debug.log "GotHomeMsg" 0
+            in
+            updateHomePage msg subModel
+                |> wrapWith (Home session) GotHomeMsg
+
+        ( GotDevelopMsg msg, Develop _ subModel ) ->
+            let
+                _ = Debug.log "GotDevelopMsg" 0
+            in
+            updateDevelopPage msg subModel
+                |> wrapWith (Develop session) GotDevelopMsg
+
+        ( Recv msg, _ ) ->
+            let
+                _ = Debug.log "Recv" (decodePortMsg msg)
             in
             ( model, Cmd.none )
-
-        ( Recv _, Index _ subModel ) ->
-            updateIndexPage NoOps subModel
-                |> updateWith (Index session) GotIndexMsg
-
-        ( Recv msg, Example _ subModel ) ->
-            let
-                _ = Debug.log "receive" (decodeValue tagDecoder msg)
-            in
-            updateExamplePage NoOps subModel
-                |> updateWith (Example session) GotExampleMsg
 
         ( _, _ ) ->
             ( model, Cmd.none )
 
 
 -- SUBSCRIPTIONS
-
-subscriptionsIndexPage : SubModel -> Sub SubMsg
-subscriptionsIndexPage model =
-    Sub.none
-
-subscriptionsExamplePage : SubModel -> Sub SubMsg
-subscriptionsExamplePage model =
-    Sub.none
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
     let
         _ = Debug.log "subscriptions" model
-        pageSubs m =
+        pageSubscriptions m =
             case m of
                 NotFound _ ->
                     Sub.none
 
-                Index _ subModel ->
-                    Sub.map GotIndexMsg (subscriptionsIndexPage subModel)
+                Home _ subModel ->
+                    Sub.map GotHomeMsg (subscriptionsHomePage subModel)
 
-                Example _ subModel ->
-                   Sub.map GotExampleMsg (subscriptionsExamplePage subModel)
+                Develop _ subModel ->
+                   Sub.map GotDevelopMsg (subscriptionsDevelopPage subModel)
     in
     Sub.batch
-    [ js2elm Recv
-    , pageSubs model
+    [ pageSubscriptions model
+    , js2elm Recv
     ]
 
 -- VIEW
-viewIndexPage : SubModel -> { title : String, body : List (Html SubMsg) }
-viewIndexPage submodel =
-    { title = "ignite - index"
-    , body =
-        [ text "Index"
-        ]
-    }
-
-viewExamplePage : SubModel -> { title : String, body : List (Html SubMsg) }
-viewExamplePage submodel =
-    { title = "ignite - example"
-    , body =
-        [ h3 []
-            [ text "Example"
-            ]
-        ]
-    }
-
 view : Model -> Browser.Document Msg
 view model =
     let
@@ -281,10 +240,92 @@ view model =
     in
     case model of
         NotFound _ ->
-            { title = "Not Found", body = [ Html.text "Not Found" ] }
+            viewNotFoundPage
 
-        Index _ subModel ->
-            viewPage GotIndexMsg (viewIndexPage subModel)
+        Home _ subModel ->
+            viewPage GotHomeMsg (viewHomePage subModel)
 
-        Example _ subModel ->
-            viewPage GotExampleMsg (viewExamplePage subModel)
+        Develop _ subModel ->
+            viewPage GotDevelopMsg (viewDevelopPage subModel)
+
+-- NOTFOUND
+viewNotFoundPage : { title : String, body : List (Html Msg) }
+viewNotFoundPage = 
+    { title = "Not Found", body = [ Html.text "Not Found" ] }
+
+-- following codes are implementation of other pages
+
+-- HOME
+type alias HomeModel =
+    { session : Session
+    }
+
+type alias HomeMsg = SubMsg
+
+initHomePage : Session -> ( HomeModel, Cmd HomeMsg )
+initHomePage session =
+    let
+        _ = Debug.log "initHomePage" session
+    in
+    ( HomeModel session
+    , Cmd.none
+    )
+
+updateHomePage : HomeMsg -> HomeModel -> ( HomeModel, Cmd HomeMsg )
+updateHomePage msg model =
+    case msg of
+        NoOps ->
+            ( model, Cmd.none )
+        _ ->
+            ( model, Cmd.none )
+
+subscriptionsHomePage : HomeModel -> Sub HomeMsg
+subscriptionsHomePage model =
+    Sub.none
+
+viewHomePage : HomeModel -> { title : String, body : List (Html HomeMsg) }
+viewHomePage model =
+    { title = "ignite - Home"
+    , body =
+        [ text "Home"
+        ]
+    }
+
+
+-- DEVELOP
+
+type alias DevelopModel =
+    { session : Session
+    }
+
+type alias DevelopMsg = SubMsg
+
+initDevelopPage : Session -> ( DevelopModel, Cmd DevelopMsg )
+initDevelopPage session =
+    ( DevelopModel session
+    , Cmd.none
+    )
+
+updateDevelopPage : DevelopMsg -> DevelopModel -> ( DevelopModel, Cmd DevelopMsg )
+updateDevelopPage msg model =
+    case msg of
+        NoOps ->
+            ( model, Cmd.none )
+        Send ->
+            ( model, elm2js (encodePortMsg <| PortMsg "elm-message" "hello")
+            )
+
+subscriptionsDevelopPage : DevelopModel -> Sub DevelopMsg
+subscriptionsDevelopPage model =
+    Sub.none
+
+viewDevelopPage : DevelopModel -> { title : String, body : List (Html DevelopMsg) }
+viewDevelopPage model =
+    { title = "ignite - Develop"
+    , body =
+        [ h3 []
+            [ text "Develop"
+            ]
+        , button [ onClick Send ] [ text "elm2js message" ]
+        ]
+    }
