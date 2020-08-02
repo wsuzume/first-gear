@@ -29,4 +29,5 @@ WORKDIR /work
 RUN mkdir bin \
     && echo -e "Y\n" | elm init \
     && echo -e "Y\n" | elm install elm/url \
-    && echo -e "Y\n" | elm install elm/json
+    && echo -e "Y\n" | elm install elm/json \
+    && echo -e "Y\n" | elm install NoRedInk/elm-json-decode-pipeline
