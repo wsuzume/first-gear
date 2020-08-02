@@ -19,6 +19,7 @@ import Page.Settings as Settings
 import Page.Portfolio as Portfolio
 import Page.EditPortfolio as EditPortfolio
 import Page.Board as Board
+import Page.Develop as Develop
 
 main : Program Flags Model Msg
 main =
@@ -40,7 +41,7 @@ type Model
     | Portfolio Session Portfolio.Model
     | EditPortfolio Session EditPortfolio.Model
     | Board Session Board.Model
---    | Develop Session SubModel
+    | Develop Session Develop.Model
 
 toSession : Model -> Session
 toSession model =
@@ -63,8 +64,8 @@ toSession model =
         Board session _ ->
             session
         
---        Develop session _ ->
---            session
+        Develop session _ ->
+            session
 
 
 -- HELPERS
@@ -104,9 +105,9 @@ load maybeRoute model =
             Board.init session
                 |> wrapWith (Board session) GotBoardMsg
 
---        Just DevelopRoute ->
---            initDevelopPage session
---                |> wrapWith (Develop session) GotDevelopMsg
+        Just Route.Develop ->
+            Develop.init session
+                |> wrapWith (Develop session) GotDevelopMsg
 
 
 -- INIT
@@ -136,7 +137,7 @@ type Msg
     | GotPortfolioMsg Portfolio.Msg
     | GotEditPortfolioMsg EditPortfolio.Msg
     | GotBoardMsg Board.Msg
---    | GotDevelopMsg SubMsg
+    | GotDevelopMsg Develop.Msg
     | Recv Json.Decode.Value
 
 
@@ -188,12 +189,9 @@ update message model =
             Board.update msg subModel
                 |> wrapWith (Board session) GotBoardMsg
 
---        ( GotDevelopMsg msg, Develop _ subModel ) ->
---            let
---                _ = Debug.log "GotDevelopMsg" 0
---            in
---            updateDevelopPage msg subModel
---                |> wrapWith (Develop session) GotDevelopMsg
+        ( GotDevelopMsg msg, Develop _ subModel ) ->
+            Develop.update msg subModel
+                |> wrapWith (Develop session) GotDevelopMsg
 
         ( Recv msg, _ ) ->
             let
@@ -230,8 +228,8 @@ subscriptions model =
                 Board _ subModel ->
                     Sub.map GotBoardMsg (Board.subscriptions subModel)
 
---                Develop _ subModel ->
---                   Sub.map GotDevelopMsg (subscriptionsDevelopPage subModel)
+                Develop _ subModel ->
+                   Sub.map GotDevelopMsg (Develop.subscriptions subModel)
     in
     Sub.batch
     [ pageSubscriptions model
@@ -265,8 +263,8 @@ view model =
         Board _ subModel ->
             viewPage GotBoardMsg (Board.view subModel)
 
---        Develop _ subModel ->
---            viewPage GotDevelopMsg (viewDevelopPage subModel)
+        Develop _ subModel ->
+            viewPage GotDevelopMsg (Develop.view subModel)
 
 -- NOTFOUND
 viewNotFoundPage : { title : String, body : List (Html Msg) }

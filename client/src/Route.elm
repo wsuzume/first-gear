@@ -9,7 +9,7 @@ type Route
     | Portfolio
     | EditPortfolio
     | Board
---    | Develop
+    | Develop
 
 
 parser : Parser (Route -> a) a
@@ -20,7 +20,7 @@ parser =
         , Parser.map Portfolio (Parser.s "portfolio")
         , Parser.map EditPortfolio (Parser.s "editportfolio")
         , Parser.map Board (Parser.s "board")
---        , Parser.map Develop (Parser.s "develop")
+        , Parser.map Develop (Parser.s "develop")
         ]
 
 fromUrl : Url -> Maybe Route
