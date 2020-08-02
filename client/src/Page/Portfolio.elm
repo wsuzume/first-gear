@@ -1,8 +1,7 @@
-module Page.Home exposing(Model, Msg, init, update, subscriptions, view)
+module Page.Portfolio exposing(Model, Msg, init, update, subscriptions, view)
 
 import Html exposing (Html, text)
 
-import Port exposing (PortMsg, elm2js, encodePortMsg)
 import Session exposing (Session)
 
 type alias Model =
@@ -11,7 +10,6 @@ type alias Model =
 
 type Msg
     = NoOps
-    | Send
 
 init : Session -> ( Model, Cmd Msg )
 init session =
@@ -24,9 +22,6 @@ update msg model =
     case msg of
         NoOps ->
             ( model, Cmd.none )
-        Send ->
-            ( model, elm2js (encodePortMsg <| PortMsg "elm-message" "hello")
-            )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -36,7 +31,7 @@ view : Model -> { title : String, body : List (Html Msg) }
 view model =
     { title = "ignite"
     , body =
-        [ text "Home"
+        [ text "Portfolio"
         ]
     }
 

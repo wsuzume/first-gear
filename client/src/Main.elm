@@ -15,6 +15,10 @@ import Route exposing (Route, fromUrl)
 import Session exposing (Session, Internals, createSession, navKeyOf)
 
 import Page.Home as Home
+import Page.Settings as Settings
+import Page.Portfolio as Portfolio
+import Page.EditPortfolio as EditPortfolio
+import Page.Board as Board
 
 main : Program Flags Model Msg
 main =
@@ -32,9 +36,10 @@ main =
 type Model
     = NotFound Session
     | Home Session Home.Model
---    | Portfolio Session SubModel
---    | EditPortfolio Session SubModel
---    | Blackboard Session SubModel
+    | Settings Session Settings.Model
+    | Portfolio Session Portfolio.Model
+    | EditPortfolio Session EditPortfolio.Model
+    | Board Session Board.Model
 --    | Develop Session SubModel
 
 toSession : Model -> Session
@@ -44,6 +49,18 @@ toSession model =
             session
         
         Home session _ ->
+            session
+
+        Settings session _ ->
+            session
+
+        Portfolio session _ ->
+            session
+
+        EditPortfolio session _ ->
+            session
+
+        Board session _ ->
             session
         
 --        Develop session _ ->
@@ -70,6 +87,22 @@ load maybeRoute model =
         Just Route.Home ->
             Home.init session
                 |> wrapWith (Home session) GotHomeMsg
+
+        Just Route.Settings ->
+            Settings.init session
+                |> wrapWith (Settings session) GotSettingsMsg
+
+        Just Route.Portfolio ->
+            Portfolio.init session
+                |> wrapWith (Portfolio session) GotPortfolioMsg
+
+        Just Route.EditPortfolio ->
+            EditPortfolio.init session
+                |> wrapWith (EditPortfolio session) GotEditPortfolioMsg
+
+        Just Route.Board ->
+            Board.init session
+                |> wrapWith (Board session) GotBoardMsg
 
 --        Just DevelopRoute ->
 --            initDevelopPage session
@@ -99,7 +132,10 @@ type Msg
     = LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | GotHomeMsg Home.Msg
---    | GotPortfolioMsg SubMsg
+    | GotSettingsMsg Settings.Msg
+    | GotPortfolioMsg Portfolio.Msg
+    | GotEditPortfolioMsg EditPortfolio.Msg
+    | GotBoardMsg Board.Msg
 --    | GotDevelopMsg SubMsg
     | Recv Json.Decode.Value
 
@@ -133,11 +169,24 @@ update message model =
             load (fromUrl url) model
 
         ( GotHomeMsg msg, Home _ subModel ) ->
-            let
-                _ = Debug.log "GotHomeMsg" 0
-            in
             Home.update msg subModel
                 |> wrapWith (Home session) GotHomeMsg
+
+        ( GotSettingsMsg msg, Settings _ subModel ) ->
+            Settings.update msg subModel
+                |> wrapWith (Settings session) GotSettingsMsg
+
+        ( GotPortfolioMsg msg, Portfolio _ subModel ) ->
+            Portfolio.update msg subModel
+                |> wrapWith (Portfolio session) GotPortfolioMsg
+
+        ( GotEditPortfolioMsg msg, EditPortfolio _ subModel ) ->
+            EditPortfolio.update msg subModel
+                |> wrapWith (EditPortfolio session) GotEditPortfolioMsg
+
+        ( GotBoardMsg msg, Board _ subModel ) ->
+            Board.update msg subModel
+                |> wrapWith (Board session) GotBoardMsg
 
 --        ( GotDevelopMsg msg, Develop _ subModel ) ->
 --            let
@@ -169,6 +218,18 @@ subscriptions model =
                 Home _ subModel ->
                     Sub.map GotHomeMsg (Home.subscriptions subModel)
 
+                Settings _ subModel ->
+                    Sub.map GotSettingsMsg (Settings.subscriptions subModel)
+
+                Portfolio _ subModel ->
+                    Sub.map GotPortfolioMsg (Portfolio.subscriptions subModel)
+
+                EditPortfolio _ subModel ->
+                    Sub.map GotEditPortfolioMsg (EditPortfolio.subscriptions subModel)
+
+                Board _ subModel ->
+                    Sub.map GotBoardMsg (Board.subscriptions subModel)
+
 --                Develop _ subModel ->
 --                   Sub.map GotDevelopMsg (subscriptionsDevelopPage subModel)
     in
@@ -191,6 +252,18 @@ view model =
 
         Home _ subModel ->
             viewPage GotHomeMsg (Home.view subModel)
+
+        Settings _ subModel ->
+            viewPage GotSettingsMsg (Settings.view subModel)
+
+        Portfolio _ subModel ->
+            viewPage GotPortfolioMsg (Portfolio.view subModel)
+
+        EditPortfolio _ subModel ->
+            viewPage GotEditPortfolioMsg (EditPortfolio.view subModel)
+
+        Board _ subModel ->
+            viewPage GotBoardMsg (Board.view subModel)
 
 --        Develop _ subModel ->
 --            viewPage GotDevelopMsg (viewDevelopPage subModel)
