@@ -3,20 +3,20 @@
   become: True
   tasks:
     ### Install requirements
-    - include_tasks: 0010_install_requirements.yml
+    - include_tasks: tasks/0010_install_requirements.yml
 
     ### create user groups
-    - include_tasks: 0020_create_groups.yml
+    - include_tasks: tasks/0020_create_groups.yml
 
     ### create users
-    - include_tasks: 0021_create_admin_user.yml
+    - include_tasks: tasks/0021_create_admin_user.yml
       vars:
         username: admin
         uid: 1001
         password: "{{ admin_password | password_hash('sha512') }}"
         ssh_pubkey: "{{ ssh_admin_pubkey }}"
 
-    - include_tasks: 0022_create_common_user.yml
+    - include_tasks: tasks/0022_create_common_user.yml
       vars:
         username: castor
         uid: 2001
@@ -24,11 +24,11 @@
         ssh_pubkey: "{{ ssh_common_pubkey }}"
 
     ### SSH security settings
-    - include_tasks: 0030_ssh_security_settings.yml
+    - include_tasks: tasks/0030_ssh_security_settings.yml
 
     ### firewall settings
-    - include_tasks: 0040_ufw_security_settings.yml
+    - include_tasks: tasks/0040_ufw_security_settings.yml
 
     ### reboot firewall and sshd
-    - include_tasks: 9999_reboot.yml
+    - include_tasks: tasks/9999_reboot.yml
 

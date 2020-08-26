@@ -1,0 +1,8 @@
+---
+- name: "install requirements"
+  apt:
+    name:
+      - make
+      - docker
+      - docker-compose
+

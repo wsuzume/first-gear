@@ -1,12 +1,3 @@
-EDITOR=vim
-TRUE_INVENTORY=~/config/ignite
-
-copy_inventory:
-	./script/copy_inventory.sh ${TRUE_INVENTORY}
-
-.SILENT:
-true_inventory:
-	echo ${TRUE_INVENTORY}
-
+.PHONY: root
 root:
-	ansible-playbook -i inventory/root/inventory root/playbook.yml
+	ansible-playbook -i root/inventory/server root/playbook.yml

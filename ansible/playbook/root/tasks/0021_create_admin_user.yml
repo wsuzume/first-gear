@@ -13,6 +13,4 @@
 ### SSH config
 - include_tasks: M001_ssh_config.yml
   vars:
-    username: "{{ username }}"
     home: "/home/{{ username }}"
-    ssh_pubkey: "{{ ssh_pubkey }}"
