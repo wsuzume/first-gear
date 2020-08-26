@@ -1,15 +1,15 @@
-PROJECT=ignite
+APPNAME=ignite
 
 SOURCE=Dockerfile
-IMAGE=${PROJECT}/ubuntuvm:latest
+IMAGE=${APPNAME}/ubuntuvm:latest
 CONTAINER=ubuntu-vm
 
 SSH_DIR=~/.ssh
 CONFIG_DIR=~/config
 
-TRUE_INVENTORY=${CONFIG_DIR}/${PROJECT}
-TRUE_ROOT_INVENTORY=${CONFIG_DIR}/${PROJECT}/root/inventory
-TRUE_USER_INVENTORY=${CONFIG_DIR}/${PROJECT}/user/inventory
+TRUE_INVENTORY=${CONFIG_DIR}/${APPNAME}
+TRUE_ROOT_INVENTORY=${CONFIG_DIR}/${APPNAME}/root/inventory
+TRUE_USER_INVENTORY=${CONFIG_DIR}/${APPNAME}/user/inventory
 CONTAINER_ROOT_INVENTORY=/playbook/root/inventory
 CONTAINER_USER_INVENTORY=/playbook/user/inventory
 
