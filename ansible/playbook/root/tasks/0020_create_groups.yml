@@ -1,0 +1,11 @@
+---
+- name: "create admin group (is written in sudoers file from the first)"
+  group:
+    name: admin
+    gid: 5001
+
+- name: "create common group"
+  group:
+    name: common
+    gid: 5002
+

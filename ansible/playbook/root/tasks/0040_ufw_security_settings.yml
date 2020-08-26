@@ -1,0 +1,27 @@
+---
+- name: "deny incoming"
+  ufw:
+    default: deny
+    direction: incoming
+
+- name: "allow SSH ({{ new_ssh_port }})"
+  ufw:
+    rule: allow
+    log: yes
+    port: "{{ new_ssh_port }}"
+
+- name: "allow HTTP (80/TCP)"
+  ufw:
+    rule: allow
+    proto: tcp
+    port: "80"
+
+- name: "allow HTTPS (443/TCP)"
+  ufw:
+    rule: allow
+    proto: tcp
+    port: "443"
+
+- name: "enable firewall"
+  ufw:
+    state: enabled

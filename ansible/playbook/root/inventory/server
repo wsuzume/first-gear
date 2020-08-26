@@ -1,0 +1,16 @@
+[server]
+XXX.XXX.XXX.XXX
+
+[server:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_port=XXXX
+ansible_user=XXXX
+ansible_ssh_pass=XXXX
+
+ssh_admin_pubkey=~/.ssh/id_admin.pub
+ssh_common_pubkey=~/.ssh/id_common.pub
+
+new_ssh_port=XXXX
+
+admin_password=XXXX
+castor_password=XXXX

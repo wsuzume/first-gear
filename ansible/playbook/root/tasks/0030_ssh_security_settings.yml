@@ -1,0 +1,43 @@
+---
+- name: "disable password authentication"
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PasswordAuthentication"
+    insertafter: "^#PasswordAuthentication"
+    line: "PasswordAuthentication no"
+
+- name: "disable empty password"
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PermitEmptyPasswords"
+    insertafter: "^#PermitEmptyPasswords"
+    line: "PermitEmptyPasswords no"
+
+- name: "disable challenge response"
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^ChallengeResponseAuthentication"
+    insertafter: "^#ChallengeResponseAuthentication"
+    line: "ChallengeResponseAuthentication no"
+
+- name: "disable root login"
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PermitRootLogin"
+    insertafter: "^#PermitRootLogin"
+    line: "PermitRootLogin no"
+
+- name: "enable pubkey authentication"
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PubkeyAuthentication"
+    insertafter: "^#PubkeyAuthentication"
+    line: "PubkeyAuthentication yes"
+
+- name: "change ssh port to {{ new_ssh_port }}"
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^Port"
+    insertafter: "^#Port"
+    line: "Port {{ new_ssh_port }}"
+

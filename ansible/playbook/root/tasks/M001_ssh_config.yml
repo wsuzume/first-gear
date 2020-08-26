@@ -1,0 +1,37 @@
+---
+- name: "{{ username }}: remove ssh config directory"
+  file:
+    path: "{{ home }}/.ssh"
+    state: absent
+
+- name: "{{ username }}: create ssh config directory"
+  become_user: "{{ username }}"
+  file:
+    path: ~/.ssh
+    state: directory
+
+- name: "{{ username }}: copy ssh pubkey to server"
+  become_user: "{{ username }}"
+  copy:
+    src: "~/.ssh/{{ ssh_pubkey }}"
+    dest: "~/.ssh/{{ ssh_pubkey }}"
+
+- name: "{{ username }}: copy ssh pubkey to ansible variable"
+  become_user: "{{ username }}"
+  slurp:
+    path: "~/.ssh/{{ ssh_pubkey }}"
+  register: var_ssh_pubkey
+
+- name: "{{ username }}: add ssh pubkey to authorized keys"
+  become_user: "{{ username }}"
+  lineinfile:
+    create: yes
+    dest: ~/.ssh/authorized_keys
+    line: "{{ var_ssh_pubkey.content | b64decode }}"
+    mode: 0600
+
+- name: "{{ username }}: change ssh config directory mode"
+  file:
+    path: "{{ home }}/.ssh"
+    state: directory
+    mode: 0700
