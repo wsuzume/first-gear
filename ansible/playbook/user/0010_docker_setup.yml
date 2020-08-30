@@ -1,0 +1,16 @@
+- name: Setup Docker Networks and Volumes
+  hosts: server
+  vars:
+    deploy_dir: "~/deploy"
+  tasks:
+    - name: "create network: applink"
+      shell: "echo {{ ansible_sudo_pass }} | sudo -S docker network create applink"
+
+    - name: "create network: appfront"
+      shell: "echo {{ ansible_sudo_pass }} | sudo -S docker network create appfront"
+
+    - name: "create network: appback"
+      shell: "echo {{ ansible_sudo_pass }} | sudo -S docker network create appback"
+
+    - name: "create volume: certs"
+      shell: "echo {{ ansible_sudo_pass }} | sudo -S docker volume create --name certs"

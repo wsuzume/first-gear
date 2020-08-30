@@ -9,3 +9,17 @@
     name: common
     gid: 5002
 
+- name: "create docker group"
+  group:
+    name: docker
+    gid: 5003
+
+- name: "allow sudo make to common"
+  lineinfile:
+    dest: /etc/sudoers
+    line: "%common ALL=(root) /usr/bin/make"
+
+- name: "allow sudo docker to common"
+  lineinfile:
+    dest: /etc/sudoers
+    line: "%common ALL=(root) /usr/bin/docker"

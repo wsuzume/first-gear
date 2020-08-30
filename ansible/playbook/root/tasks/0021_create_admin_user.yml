@@ -4,6 +4,7 @@
     name: "{{ username }}"
     uid: "{{ uid }}"
     group: admin
+    groups: docker
     create_home: yes
     home: "/home/{{ username }}"
     password: "{{ password }}"

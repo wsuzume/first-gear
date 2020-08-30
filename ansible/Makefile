@@ -26,7 +26,7 @@ clean:
 # delete all image
 .PHONY: doomsday
 doomsday:
-	docker image rm `docker image ls -q`
+	docker image rm -f `docker image ls -q`
 
 copy_inventory:
 	./script/copy_inventory.sh ${TRUE_INVENTORY}
