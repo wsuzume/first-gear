@@ -8,7 +8,7 @@ docker:
 
 .PHONY: clone
 clone:
-	ansible-playbook -i user/inventory/server user/0020_git_clone.yml -u castor --private-key="~/.ssh/id_common"
+	ansible-playbook -i user/inventory/server user/0020_clone_ignite.yml -u castor --private-key="~/.ssh/id_common"
 
 .PHONY: deploy
 deploy:
