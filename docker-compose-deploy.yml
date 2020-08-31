@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  app-server:
+    build: app
+    container_name: app-server
+    hostname: app-server
+    networks:
+      - frontend
+      - backend
+
+
+networks:
+  default:
+    external:
+      name: applink
+  frontend:
+    external:
+      name: appfront
+  backend:
+    external:
+      name: appback
