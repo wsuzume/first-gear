@@ -23,8 +23,8 @@ app_shell:
 		-v ${PWD}:/go/src/github.com/ignite \
 		${APP_IMAGE}
 
-.PHONY: deploy
-deploy:
+.PHONY: serve
+serve:
 	docker container create -it -p 8080:80 --hostname ${APP_HOSTNAME} --name ${APP_CONTAINER} \
 		-v ${PWD}:/go/src/github.com/ignite \
 		${APP_IMAGE}
