@@ -1,11 +1,11 @@
 APPNAME=ignite
 
 SOURCE=Dockerfile
-IMAGE=${APPNAME}/api:latest
-CONTAINER=api-server
+IMAGE=${APPNAME}/app:latest
+CONTAINER=app-server
 
 image: Dockerfile
 	docker image build -f ${SOURCE} -t ${IMAGE} .
 
 shell:
-	docker container run -it --rm -p 8080:8080 -v ${PWD}:/go/src/work ${IMAGE}
+	docker container run -it --rm -p 8080:80 -v ${PWD}:/go/src/work ${IMAGE}

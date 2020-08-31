@@ -5,12 +5,12 @@ import (
     "net/http"
 
 		//"github.com/boltdb/bolt"
-    "github.com/gorilla/websocket"
+    //"github.com/gorilla/websocket"
 
 		//"github.com/ignite/app/env"
 )
 
-const LISTEN_PORT = ":8080"
+const LISTEN_PORT = ":80"
 
 func main() {
     // localhost:8080 でアクセスした時に index.html を読み込む
