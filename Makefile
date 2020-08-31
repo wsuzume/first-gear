@@ -33,7 +33,12 @@ serve:
 	docker container start ${APP_CONTAINER}
 	docker container exec -it ${APP_CONTAINER} go run app/main.go
 
+.PHONY: init
+init:
+	docker-compose -f docker-compose.yml up
+
 .PHONY: deploy
+deploy:
 	docker-compose -f docker-compose-deploy.yml up
 
 .PHONY: start_maintenance
