@@ -33,14 +33,17 @@ serve:
 	docker container start ${APP_CONTAINER}
 	docker container exec -it ${APP_CONTAINER} go run app/main.go
 
+.PHONY: deploy
+	docker-compose -f docker-compose-deploy.yml up
+
 .PHONY: start_maintenance
 start_maintenance:
-	docker-compose up -f docker-compose-maintenance.yml
+	docker-compose -f docker-compose-maintenance.yml up
 	sleep 15
-	docker-compose down -f docker-compose-deploy.yml
+	docker-compose -f docker-compose-deploy.yml down
 
 .PHONY: end_maintenance
 end_maintenance:
-	docker-compose up -f docker-compose-deploy.yml
+	docker-compose -f docker-compose-deploy.yml up
 	sleep 15
-	docker-compose down -f docker-compose-maintenance.yml
+	docker-compose -f docker-compose-maintenance.yml down
