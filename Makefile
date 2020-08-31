@@ -35,14 +35,12 @@ deploy:
 
 .PHONY: start_maintenance
 start_maintenance:
-	docker run --rm -f maintenance/Dockerfile --hostname maintenance --name maintenance \
-		--net=frontend
+	docker-compose up -f docker-compose-maintenance.yml
 	sleep 15
-	docker stop ignite
+	docker-compose down -f docker-compose-deploy.yml
 
 .PHONY: end_maintenance
 end_maintenance:
-	docker run --rm -f app/Dockerfile --hostname ignite --name ignite \
-		--net=frontend --net=backend
+	docker-compose up -f docker-compose-deploy.yml
 	sleep 15
-	docker stop maintenance
+	docker-compose down -f docker-compose-maintenance.yml
