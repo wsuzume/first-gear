@@ -21,17 +21,22 @@ app_image:
 app_shell:
 	docker container run -it --rm -p 8080:80 \
 		-v ${PWD}:/go/src/github.com/ignite \
+		--workdir /go/src/github.com/ignite/app \
 		${APP_IMAGE}
 
 .PHONY: serve
 serve:
-	docker container create -it -p 8080:80 --hostname ${APP_HOSTNAME} --name ${APP_CONTAINER} \
-		-v ${PWD}:/go/src/github.com/ignite \
-		${APP_IMAGE}
-	docker network connect appfront ${APP_CONTAINER}
-	docker network connect appback ${APP_CONTAINER}
-	docker container start ${APP_CONTAINER}
-	docker container exec -it ${APP_CONTAINER} go run app/main.go
+	docker-compose -f docker-compose-deploy.yml up -d
+	docker-compose -f docker-compose-maintenance.yml up -d
+	docker-compose -f docker-compose.yml up -d
+	sleep 5
+	docker-compose -f docker-compose-maintenance.yml down
+
+.PHONY: stop_serve
+stop_serve:
+	docker-compose -f docker-compose-deploy.yml down
+	docker-compose -f docker-compose-maintenance.yml down
+	docker-compose -f docker-compose.yml down
 
 .PHONY: init
 init:
@@ -43,12 +48,12 @@ deploy:
 
 .PHONY: start_maintenance
 start_maintenance:
-	docker-compose -f docker-compose-maintenance.yml up
+	docker-compose -f docker-compose-maintenance.yml up -d
 	sleep 15
 	docker-compose -f docker-compose-deploy.yml down
 
 .PHONY: end_maintenance
 end_maintenance:
-	docker-compose -f docker-compose-deploy.yml up
+	docker-compose -f docker-compose-deploy.yml up -d
 	sleep 15
 	docker-compose -f docker-compose-maintenance.yml down

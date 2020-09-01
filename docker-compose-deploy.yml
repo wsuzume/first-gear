@@ -8,7 +8,11 @@ services:
     networks:
       - frontend
       - backend
-
+    volumes:
+      - ./:/go/src/github.com/ignite
+    working_dir: /go/src/github.com/ignite/app
+    command: >
+      go run main.go
 
 networks:
   default:

@@ -7,10 +7,7 @@ services:
     hostname: reverse_proxy
     networks:
       - frontend
-    depends_on:
-      - maintenance
     volumes:
-    #  - ./reverse_proxy/html:/usr/share/nginx/html
       - ./reverse_proxy/conf.d:/etc/nginx/conf.d
       - certs:/etc/pki/tls
     ports:

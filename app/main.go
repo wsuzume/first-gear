@@ -1,27 +1,29 @@
 package main
 
 import (
-    "log"
     "net/http"
 
 		//"github.com/boltdb/bolt"
     //"github.com/gorilla/websocket"
+		"github.com/gin-gonic/gin"
 
 		//"github.com/ignite/app/env"
 )
 
+func IndexGet() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{})
+	}
+}
+
 const LISTEN_PORT = ":80"
 
 func main() {
-    // localhost:8080 でアクセスした時に index.html を読み込む
-    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        http.ServeFile(w, r, "index.html")
-    })
+	r := gin.Default()
 
-    // サーバーの起動
-    err := http.ListenAndServe(LISTEN_PORT, nil)
-    if err != nil {
-        log.Fatal("error starting http server::", err)
-        return
-    }
+	r.LoadHTMLGlob("views/*")
+
+	r.GET("/", IndexGet())
+
+	r.Run(LISTEN_PORT)
 }
