@@ -10,9 +10,10 @@ services:
     volumes:
       - ./reverse_proxy/conf.d:/etc/nginx/conf.d
       - ./letsencrypt:/etc/letsencrypt
+      #- certs:/etc/pki/tls
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
 
 volumes:
   certs:
