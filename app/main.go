@@ -21,7 +21,7 @@ const LISTEN_PORT = ":80"
 func main() {
 	r := gin.Default()
 
-	r.LoadHTMLGlob("views/*")
+	r.LoadHTMLGlob("views/*.html")
 
 	r.GET("/", IndexGet())
 
