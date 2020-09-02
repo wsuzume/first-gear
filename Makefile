@@ -57,3 +57,12 @@ end_maintenance:
 	docker-compose -f docker-compose-deploy.yml up -d
 	sleep 15
 	docker-compose -f docker-compose-maintenance.yml down
+
+cert:
+	docker exec -it reverse_proxy certbot certonly --nginx --agree-tos \
+		-m youremail@email.com \
+		-d example.com \
+		-d ignite.example.com
+
+renew:
+	docker exec -it reverse_proxy certbot renew --dry-run
