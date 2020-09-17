@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  reverse_proxy:
+    build: ${ROOTDIR}/reverse_proxy
+    container_name: reverse-proxy
+    hostname: reverse-proxy
+    networks:
+      - frontend
+    volumes:
+      - ${ROOTDIR}/reverse_proxy/conf.d:/etc/nginx/conf.d
+      - ${ROOTDIR}/letsencrypt:/etc/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+
+volumes:
+  certs:
+    external: true
+
+networks:
+  default:
+    external:
+      name: applink
+  frontend:
+    external:
+      name: appfront

@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  maintenance:
+    build: ${ROOTDIR}/maintenance
+    container_name: maintenance
+    hostname: maintenance
+    networks:
+      - frontend
+    volumes:
+      - ${ROOTDIR}/maintenance/html:/usr/share/nginx/html
+
+networks:
+  default:
+    external:
+      name: applink
+  frontend:
+    external:
+      name: appfront
