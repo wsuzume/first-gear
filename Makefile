@@ -66,3 +66,12 @@ cert:
 
 renew:
 	docker exec -it reverse_proxy certbot renew --dry-run
+
+local_config:
+	echo "ROOTDIR=`pwd`" > .env
+	docker-compose -p local \
+		-f docker-compose/reverse-proxy.yml \
+		-f docker-compose/app-server.yml \
+		-f docker-compose/maintenance.yml \
+		-f docker-compose/env/local/reverse-proxy.yml \
+		config
