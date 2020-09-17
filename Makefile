@@ -26,17 +26,21 @@ app_shell:
 
 .PHONY: serve
 serve:
-	docker-compose -f docker-compose-deploy.yml up -d
-	docker-compose -f docker-compose-maintenance.yml up -d
-	docker-compose -f docker-compose.yml up -d
+	docker-compose \
+		-f docker-compose/reverse_proxy.yml \
+		-f docker-compose/maintenance.yml \
+		-f docker-compose/app_server.yml \
+		up -d
 	sleep 5
-	docker-compose -f docker-compose-maintenance.yml down
+	docker-compose -f docker-compose/maintenance.yml down
 
 .PHONY: stop_serve
 stop_serve:
-	docker-compose -f docker-compose-deploy.yml down
-	docker-compose -f docker-compose-maintenance.yml down
-	docker-compose -f docker-compose.yml down
+	docker-compose \
+		-f docker-compose-deploy.yml \
+		-f docker-compose-maintenance.yml \
+		-f docker-compose.yml \
+		down
 
 .PHONY: init
 init:
@@ -48,23 +52,23 @@ deploy:
 
 .PHONY: start_maintenance
 start_maintenance:
-	docker-compose -f docker-compose-maintenance.yml up -d
+	docker-compose -f docker-compose/maintenance.yml up -d
 	sleep 15
-	docker-compose -f docker-compose-deploy.yml down
+	docker-compose -f docker-compose/app_server.yml down
 
 .PHONY: end_maintenance
 end_maintenance:
-	docker-compose -f docker-compose-deploy.yml up -d
+	docker-compose -f docker-compose/app_server.yml up -d
 	sleep 15
-	docker-compose -f docker-compose-maintenance.yml down
+	docker-compose -f docker-compose/maintenance.yml down
 
-cert:
+newcert:
 	docker exec -it reverse_proxy certbot certonly --nginx --agree-tos \
 		-m youremail@email.com \
 		-d example.com \
 		-d ignite.example.com
 
-renew:
+recert:
 	docker exec -it reverse_proxy certbot renew --dry-run
 
 local_config:
@@ -75,3 +79,13 @@ local_config:
 		-f docker-compose/maintenance.yml \
 		-f docker-compose/env/local/reverse-proxy.yml \
 		config
+	
+castor_config:
+	echo "ROOTDIR=`pwd`" > .env
+	docker-compose -p local \
+		-f docker-compose/reverse-proxy.yml \
+		-f docker-compose/app-server.yml \
+		-f docker-compose/maintenance.yml \
+		-f docker-compose/env/castor/reverse-proxy.yml \
+		config
+	
