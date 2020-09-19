@@ -37,9 +37,9 @@ serve:
 .PHONY: stop_serve
 stop_serve:
 	docker-compose \
-		-f docker-compose-deploy.yml \
-		-f docker-compose-maintenance.yml \
-		-f docker-compose.yml \
+		-f docker-compose/reverse_proxy.yml \
+		-f docker-compose/maintenance.yml \
+		-f docker-compose/app_server.yml \
 		down
 
 .PHONY: init
@@ -72,20 +72,18 @@ recert:
 	docker exec -it reverse_proxy certbot renew --dry-run
 
 local_config:
-	echo "ROOTDIR=`pwd`" > .env
-	docker-compose -p local \
-		-f docker-compose/reverse-proxy.yml \
-		-f docker-compose/app-server.yml \
+	export ROOTDIR=`pwd` && docker-compose -p local \
+		-f docker-compose/reverse_proxy.yml \
+		-f docker-compose/app_server.yml \
 		-f docker-compose/maintenance.yml \
-		-f docker-compose/env/local/reverse-proxy.yml \
+		-f docker-compose/env/local/reverse_proxy.yml \
 		config
 	
 castor_config:
-	echo "ROOTDIR=`pwd`" > .env
-	docker-compose -p local \
-		-f docker-compose/reverse-proxy.yml \
-		-f docker-compose/app-server.yml \
+	export ROOTDIR=`pwd` && docker-compose -p local \
+		-f docker-compose/reverse_proxy.yml \
+		-f docker-compose/app_server.yml \
 		-f docker-compose/maintenance.yml \
-		-f docker-compose/env/castor/reverse-proxy.yml \
+		-f docker-compose/env/castor/reverse_proxy.yml \
 		config
 	
