@@ -17,10 +17,10 @@ Ignite は SPA テンプレートです。以下の項目を含みます。
     * Ubuntu 18.04 LTS
 
 ## 初期設定
-### Just fork this repository
+### 1. Just fork this repository
 GitHub の Fork ボタンを押してあなたのアカウントにフォークします。
 
-### Create New Repository and Clone Ignite
+### 2. Create New Repository and Clone Ignite
 あなたが新しく作りたいアプリのリポジトリを新たに作成してください。
 ここでは`sample-app`という名前をつけたとします。以下の一連のコマンドによってクローンされた Ignite が
 `sample-app`のリポジトリに結びつきます。
@@ -32,7 +32,7 @@ $ git remote set-url origin git@github.com:{your account}/sample-app.git
 $ git push
 ```
 
-### Change Project Name
+### 3. Change Project Name
 複数のアプリケーションを Ignite をベースにして作成し、同じ Docker ホストにデプロイしようとすると、
 イメージ名やコンテナ名が衝突します。これを回避するため、Ignite はすべての`Makefile`の先頭に`APPNAME=ignite`という変数を持ち、
 この変数を元にイメージ名やコンテナ名を決めています。
