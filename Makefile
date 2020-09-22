@@ -23,6 +23,8 @@ APP_IMAGE=${APPNAME}/app:latest
 APP_CONTAINER=app-server
 
 
+# --- Entire Container Manipulation ---------------
+
 .PHONY: stop
 stop:
 	docker container stop `docker container ls -q`
@@ -31,42 +33,91 @@ stop:
 clean:
 	docker container prune
 
+.PHONY: doomsday
+doomsday:
+	docker image rm -f `docker image ls -q`
+
+# --- Container Manipulation ------------------
+
 .PHONY: app_image
 app_image:
-	docker image build -f ${APP_SOURCE} -t ${APP_IMAGE} ./app
+	export ROOTDIR=`pwd` && docker-compose -f docker-compose/app_server.yml build
+
+.PHONY: app_build
+app_build:
+	export ROOTDIR=`pwd` && docker-compose -f docker-compose/app_server.yml build --no-cache
 
 .PHONY: app_shell
 app_shell:
-	docker container run -it --rm -p 8080:80 \
-		-v ${PWD}:/go/src/github.com/ignite \
-		--workdir /go/src/github.com/ignite/app \
-		${APP_IMAGE}
+	export ROOTDIR=`pwd` && docker-compose -f docker-compose/app_server.yml run --rm app-server bash
+	#docker container run -it --rm -p 8080:80 \
+	#	-v ${PWD}:/go/src/github.com/ignite \
+	#	--workdir /go/src/github.com/ignite/app \
+	#	${APP_IMAGE}
+
+# --- Check Service Configuration ---------------
+
+.PHONY: local_config
+local_config:
+	export ROOTDIR=`pwd` && docker-compose -p local \
+		-f docker-compose/reverse_proxy.yml \
+		-f docker-compose/app_server.yml \
+		-f docker-compose/maintenance.yml \
+		-f docker-compose/env/local/reverse_proxy.yml \
+		config
+	
+.PHONY: castor_config
+castor_config:
+	export ROOTDIR=`pwd` && docker-compose -p local \
+		-f docker-compose/reverse_proxy.yml \
+		-f docker-compose/app_server.yml \
+		-f docker-compose/maintenance.yml \
+		-f docker-compose/env/castor/reverse_proxy.yml \
+		config
+
+# --- Local Service Manipulation ---------------
 
 .PHONY: serve
 serve:
-	docker-compose \
+	export ROOTDIR=`pwd` && docker-compose \
 		-f docker-compose/reverse_proxy.yml \
 		-f docker-compose/maintenance.yml \
 		-f docker-compose/app_server.yml \
+		-f docker-compose/env/local/reverse_proxy.yml \
 		up -d
 	sleep 5
 	docker-compose -f docker-compose/maintenance.yml down
 
 .PHONY: stop_serve
 stop_serve:
-	docker-compose \
+	export ROOTDIR=`pwd` && docker-compose \
 		-f docker-compose/reverse_proxy.yml \
 		-f docker-compose/maintenance.yml \
 		-f docker-compose/app_server.yml \
+		-f docker-compose/env/local/reverse_proxy.yml \
 		down
 
-.PHONY: init
-init:
-	docker-compose -f docker-compose.yml up
+# --- Remote Service Manipulation ---------------
 
 .PHONY: deploy
 deploy:
-	docker-compose -f docker-compose-deploy.yml up
+	export ROOTDIR=`pwd` && docker-compose \
+		-f docker-compose/reverse_proxy.yml \
+		-f docker-compose/maintenance.yml \
+		-f docker-compose/app_server.yml \
+		-f docker-compose/env/castor/reverse_proxy.yml
+		up -d
+	sleep 5
+	docker-compose -f docker-compose/maintenance.yml down
+
+.PHONY: stop_remote
+stop_remote:
+	export ROOTDIR=`pwd` && docker-compose \
+		-f docker-compose/reverse_proxy.yml \
+		-f docker-compose/maintenance.yml \
+		-f docker-compose/app_server.yml \
+		-f docker-compose/env/castor/reverse_proxy.yml
+		down
 
 .PHONY: start_maintenance
 start_maintenance:
@@ -80,30 +131,18 @@ end_maintenance:
 	sleep 15
 	docker-compose -f docker-compose/maintenance.yml down
 
+# --- Let's Encrypt ---------------
+
+.PHONY: newcert
 newcert:
 	docker exec -it reverse_proxy certbot certonly --nginx --agree-tos \
 		-m youremail@email.com \
 		-d example.com \
 		-d ignite.example.com
 
+.PHONY: recert
 recert:
 	docker exec -it reverse_proxy certbot renew --dry-run
-
-local_config:
-	export ROOTDIR=`pwd` && docker-compose -p local \
-		-f docker-compose/reverse_proxy.yml \
-		-f docker-compose/app_server.yml \
-		-f docker-compose/maintenance.yml \
-		-f docker-compose/env/local/reverse_proxy.yml \
-		config
-	
-castor_config:
-	export ROOTDIR=`pwd` && docker-compose -p local \
-		-f docker-compose/reverse_proxy.yml \
-		-f docker-compose/app_server.yml \
-		-f docker-compose/maintenance.yml \
-		-f docker-compose/env/castor/reverse_proxy.yml \
-		config
 
 # --- Utils ---------------
 
@@ -127,6 +166,7 @@ else
 	echo "Unrecognized OS: failure"
 endif
 
+.PHONY: true_inventory
 .SILENT:
 true_inventory:
 	echo ${TRUE_INVENTORY}

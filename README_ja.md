@@ -68,7 +68,12 @@ Ignite のリポジトリに登録されているダミーの設定ファイル�
 $ make copy_inventory
 ```
 
-コピーされた設定ファイルは適宜変更してください。以上で初期設定は完了です。
+コピーされた設定ファイルは脆弱なパスワードを含んでいるでの必ず確認して変更してください。
+
+### 5. Communication Check to Your Server
+あなたのサーバーと疎通が取れているか確認します。
+
+以上で初期設定は完了です。
 
 # 使用方法
 ### Build and Enter Ansible Client
