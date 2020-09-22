@@ -6,11 +6,22 @@ else ifeq ($(shell uname),Darwin)
 	OS=$(shell uname)
 endif
 
+SSH_DIR=~/.ssh
+CONFIG_DIR=~/config
+
+TRUE_INVENTORY=${CONFIG_DIR}/${APPNAME}
+TRUE_ROOT_INVENTORY=${TRUE_INVENTORY}/root/inventory
+TRUE_USER_INVENTORY=${TRUE_INVENTORY}/user/inventory
+TRUE_MYSQL_INVENTORY=${TRUE_INVENTORY}/mysql/inventory
+
+ANSIBLE_ROOT_INVENTORY=ansible/playbook/root/inventory
+ANSIBLE_USER_INVENTORY=ansible/playbook/user/inventory
+MYSQL_INVENTORY=mysql/inventory
+
 APP_SOURCE=app/Dockerfile
 APP_IMAGE=${APPNAME}/app:latest
 APP_CONTAINER=app-server
 
-	
 
 .PHONY: stop
 stop:
@@ -93,7 +104,9 @@ castor_config:
 		-f docker-compose/maintenance.yml \
 		-f docker-compose/env/castor/reverse_proxy.yml \
 		config
-	
+
+# --- Utils ---------------
+
 .PHONY: validate
 .SILENT:
 validate:
@@ -114,3 +127,10 @@ else
 	echo "Unrecognized OS: failure"
 endif
 
+.SILENT:
+true_inventory:
+	echo ${TRUE_INVENTORY}
+
+copy_inventory:
+	export TRUE_INVENTORY=${TRUE_INVENTORY} \
+	&& ./script/copy_inventory.sh
