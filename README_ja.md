@@ -34,7 +34,8 @@ $ git push
 
 ### 3. Change Project Name
 複数のアプリケーションを Ignite をベースにして作成し、同じ Docker ホストにデプロイしようとすると、
-イメージ名やコンテナ名が衝突します。これを回避するため、Ignite はすべての`Makefile`の先頭に`APPNAME=ignite`という変数を持ち、
+イメージ名やコンテナ名が衝突します。また、開発環境にコピーされる設定ファイル名も衝突します。
+これを回避するため、Ignite はすべての`Makefile`の先頭に`APPNAME=ignite`という変数を持ち、
 この変数を元にイメージ名やコンテナ名を決めています。
 
 この変数を上書きするためのコマンドはプロジェクトルートの`Makefile`に記載されている`update_appname`コマンドです。
@@ -50,7 +51,24 @@ $ make update_appname
 安全のため`Makefile`の先頭以外では上書きを行わないので、すべての`Makefile`の先頭は必ず`APPNAME`変数の定義にするか、
 そうでない場合は`Makefile`中で`APPNAME`変数を使用しないでください。
 
-以上で初期設定は完了です。
+### 4. Copy Configuration Files to Your Development PC
+Ignite はサーバー構築や MySQL の設定に用いる、GitHub には間違っても push されてはいけない情報、
+たとえばサーバーの root パスワードなどを扱います。Ignite はこれらの情報が誤って push されるのを防ぐため、
+重要な情報はリポジトリの外へ保管します。
+
+デフォルトでの保管先は`~/config/${APPNAME}`です。以下のコマンドで確認することができます。
+
+```
+$ make true_inventory
+```
+
+Ignite のリポジトリに登録されているダミーの設定ファイルは、以下のコマンドを実行することで保管先にコピーされます。
+
+```
+$ make copy_inventory
+```
+
+コピーされた設定ファイルは適宜変更してください。以上で初期設定は完了です。
 
 # 使用方法
 ### Build and Enter Ansible Client
