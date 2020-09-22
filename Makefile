@@ -1,9 +1,16 @@
 APPNAME=ignite
 
+ifeq ($(shell uname),Linux)
+	OS=$(shell uname)
+else ifeq ($(shell uname),Darwin)
+	OS=$(shell uname)
+endif
+
 APP_SOURCE=app/Dockerfile
 APP_IMAGE=${APPNAME}/app:latest
 APP_CONTAINER=app-server
-APP_HOSTNAME=ignite
+
+	
 
 .PHONY: stop
 stop:
@@ -87,3 +94,23 @@ castor_config:
 		-f docker-compose/env/castor/reverse_proxy.yml \
 		config
 	
+.PHONY: validate
+.SILENT:
+validate:
+ifeq (${OS},Linux)
+	echo "Linux OS recognized: success"
+else ifeq (${OS},Darwin)
+	echo "OSX recognized: success"
+else
+	echo "Unrecognized OS: failure"
+endif
+
+update_appname:	
+ifdef OS
+	export OS=${OS} \
+	&& export APPNAME=${APPNAME} \
+	&& ./script/update_appname.sh
+else
+	echo "Unrecognized OS: failure"
+endif
+
