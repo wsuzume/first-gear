@@ -1,0 +1,47 @@
+upstream {{ APP_NAME }}-app-server {
+  ip_hash;
+
+  server app-server;
+  server maintenance;
+}
+
+server {
+  listen 80;
+  server_name localhost;
+
+  location / {
+    proxy_pass http://{{ APP_NAME }}-app-server;
+  }
+}
+
+server {
+  listen 80;
+  server_name {{ SERVER_NAME }};
+
+  location / {
+    proxy_pass http://{{ APP_NAME }}-app-server;
+  }
+}
+
+server {
+  listen 80;
+  server_name {{ APP_DOMAIN }}.{{ SERVER_NAME }};
+
+  location / {
+    proxy_pass http://{{ APP_NAME }}-app-server;
+  }
+}
+
+server {
+    listen 443 ssl http2;
+    ssl on;
+    server_name {{ SERVER_NAME }};
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_certificate /etc/letsencrypt/live/{{ SERVER_CERT }};
+    ssl_certificate_key /etc/letsencrypt/live/{{ SERVER_KEY }};
+
+    location / {
+      proxy_pass http://{{ APP_NAME }}-app-server;
+    }
+}
