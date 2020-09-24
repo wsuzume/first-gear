@@ -1,0 +1,5 @@
+APP_NAME=ignite
+APP_DOMAIN=ignite
+SERVER_NAME=localhost
+SERVER_CERT=/etc/letsencrypt/live/localhost/fullchain.pem;
+SERVER_KEY=/etc/letsencrypt/live/localhost/privkey.pem;
